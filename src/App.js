@@ -40,12 +40,20 @@ function App() {
       loading: true
     });
     const res = await fetch(url);
-    const { lyrics } = await res.json();
+    if (res.status === 200) {
+      const body = await res.json();
+      const lyrics = body.lyrics.split('\n\n\n');
+      return setData({
+        ...data,
+        lyrics,
+        loading: false
+      });
+    }
     setData({
       ...data,
-      lyrics,
       loading: false
     });
+    toast.error('Canción no encontrada');
   }
 
   if (loading) return <Loading />
@@ -78,10 +86,14 @@ function App() {
           Buscar
         </button>
       </form>
-      {
-        lyrics &&
-        <p className="app__lyrics">{ lyrics }</p>
-      }
+      <div className="lyrics">
+        {
+          lyrics &&
+          lyrics.map((p, index) => (
+            <p className="lyrics__p" key={ index }>{ p }</p>
+          ))
+        }
+      </div>
     </div>
   );
 }
